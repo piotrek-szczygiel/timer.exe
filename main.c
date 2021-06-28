@@ -1,6 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
-#include <tchar.h>
 #include <windows.h>
 
 SYSTEMTIME SystemTimeDiff(const SYSTEMTIME* a, const SYSTEMTIME* b) {
