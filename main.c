@@ -30,25 +30,55 @@ SYSTEMTIME SystemTimeDiff(const SYSTEMTIME* a, const SYSTEMTIME* b) {
 
 void PrintfSystemTime(const SYSTEMTIME* t) {
     if (t->wHour > 0) {
-        fprintf(stderr, "%huh ", t->wHour);
+        printf("%huh ", t->wHour);
     }
 
     if (t->wMinute > 0) {
-        fprintf(stderr, "%hum ", t->wMinute);
+        printf("%hum ", t->wMinute);
     }
 
     if (t->wSecond > 0) {
-        fprintf(stderr, "%hus ", t->wSecond);
+        printf("%hus ", t->wSecond);
     }
 
-    fprintf(stderr, "%hums", t->wMilliseconds);
+    printf("%hums", t->wMilliseconds);
 }
 
-int main(int argc, char** argv) {
-    char cmd[MAX_PATH] = {0};
-    strcpy(cmd, argv[1]);
+int SystemTimeToMilliseconds(const SYSTEMTIME* t) {
+    int ms = t->wMilliseconds;
+    ms += t->wSecond * 1000;
+    ms += t->wMinute * 1000 * 60;
+    ms += t->wHour * 1000 * 60 * 60;
+    return ms;
+}
 
-    for (int i = 2; i < argc; ++i) {
+void Usage() { fprintf(stderr, "usage: timer.exe [--only-real-ms|-o] COMMAND\n"); }
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        Usage();
+        return -1;
+    }
+
+    int current_argv = 1;
+    int only_real_ms = 0;
+
+    if ((strcmp(argv[1], "--only-real-ms") == 0) || (strcmp(argv[1], "-o") == 0)) {
+        only_real_ms = 1;
+
+        if (argc < 3) {
+            Usage();
+            return -1;
+        }
+
+        ++current_argv;
+    }
+
+    char cmd[MAX_PATH] = {0};
+    strcpy(cmd, argv[current_argv]);
+    ++current_argv;
+
+    for (int i = current_argv; i < argc; ++i) {
         strcat(cmd, " ");
         strcat(cmd, argv[i]);
     }
@@ -95,24 +125,29 @@ int main(int argc, char** argv) {
 
     SYSTEMTIME elapsed_time = SystemTimeDiff(&exit_time, &creation_time);
 
+    if (only_real_ms == 1) {
+        printf("%d\n", SystemTimeToMilliseconds(&elapsed_time));
+        return exit_code;
+    }
+
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     GetConsoleMode(hOut, &dwMode);
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
 
-    fprintf(stderr, "\033[0m\n");
+    printf("\033[90m--- timer.exe results ---\033[0m\n");
 
-    fprintf(stderr, "real\t\033[92m");
+    printf("real\t\033[92m");
     PrintfSystemTime(&elapsed_time);
 
-    fprintf(stderr, "\033[0m\nuser\t");
+    printf("\033[0m\nuser\t");
     PrintfSystemTime(&user_time);
 
-    fprintf(stderr, "\nkernel\t");
+    printf("\nkernel\t");
     PrintfSystemTime(&kernel_time);
 
-    fprintf(stderr, "\n");
+    printf("\n");
 
     return exit_code;
 }

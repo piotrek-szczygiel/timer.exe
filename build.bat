@@ -6,12 +6,13 @@ for /f "usebackq tokens=1,2 delims=,=- " %%i in (`wmic os get LocalDateTime /val
     set CURR_DATE_TIME=%%j
 )
 
-set exe_name=time.exe
+set exe_name=timer.exe
 
 set source_files= ^
-    src/main.c
+    main.c
 
 if "%1" == "release" (
+    echo Building in release mode
     set release_mode=1
 ) else (
     set release_mode=0
