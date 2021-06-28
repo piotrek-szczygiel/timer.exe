@@ -30,18 +30,18 @@ SYSTEMTIME SystemTimeDiff(const SYSTEMTIME* a, const SYSTEMTIME* b) {
 
 void PrintfSystemTime(const SYSTEMTIME* t) {
     if (t->wHour > 0) {
-        printf("%huh ", t->wHour);
+        fprintf(stderr, "%huh ", t->wHour);
     }
 
     if (t->wMinute > 0) {
-        printf("%hum ", t->wMinute);
+        fprintf(stderr, "%hum ", t->wMinute);
     }
 
     if (t->wSecond > 0) {
-        printf("%hus ", t->wSecond);
+        fprintf(stderr, "%hus ", t->wSecond);
     }
 
-    printf("%hums", t->wMilliseconds);
+    fprintf(stderr, "%hums", t->wMilliseconds);
 }
 
 int SystemTimeToMilliseconds(const SYSTEMTIME* t) {
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
     SYSTEMTIME elapsed_time = SystemTimeDiff(&exit_time, &creation_time);
 
     if (only_real_ms == 1) {
-        printf("%d\n", SystemTimeToMilliseconds(&elapsed_time));
+        fprintf(stderr, "%d\n", SystemTimeToMilliseconds(&elapsed_time));
         return exit_code;
     }
 
@@ -136,18 +136,18 @@ int main(int argc, char** argv) {
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
 
-    printf("\033[90m--- timer.exe results ---\033[0m\n");
+    fprintf(stderr, "\033[90m--- timer.exe results ---\033[0m\n");
 
-    printf("real\t\033[92m");
+    fprintf(stderr, "real\t\033[92m");
     PrintfSystemTime(&elapsed_time);
 
-    printf("\033[0m\nuser\t");
+    fprintf(stderr, "\033[0m\nuser\t");
     PrintfSystemTime(&user_time);
 
-    printf("\nkernel\t");
+    fprintf(stderr, "\nkernel\t");
     PrintfSystemTime(&kernel_time);
 
-    printf("\n");
+    fprintf(stderr, "\n");
 
     return exit_code;
 }
